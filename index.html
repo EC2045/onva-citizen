@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ONVA 国籍データベース</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Noto+Sans+JP:wght@300;400;500;700&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c10;
+  --bg2: #111520;
+  --bg3: #181e2c;
+  --border: #1f2a3c;
+  --border2: #2a3a54;
+  --text: #c8d4e8;
+  --text2: #7090b0;
+  --text3: #3a5070;
+  --binary: #00d890;
+  --binary-dim: #004430;
+  --wolf: #f0a040;
+  --wolf-dim: #3a2000;
+  --human: #5090f0;
+  --human-dim: #001840;
+  --half: #e060c0;
+  --half-dim: #380040;
+  --unknown: #a060f0;
+  --unknown-dim: #200040;
+  --accent: #00d890;
+  --mono: 'Space Mono', monospace;
+  --sans: 'Noto Sans JP', sans-serif;
+  --serif: 'Shippori Mincho', serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* scanline overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 2; }
+
+/* header */
+header {
+  border-bottom: 1px solid var(--border);
+  padding: 28px 0 20px;
+  margin-bottom: 32px;
+}
+.header-inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.site-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+h1 {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 700;
+  color: #e8f0ff;
+  letter-spacing: 0.05em;
+}
+h1 span {
+  color: var(--binary);
+  font-family: var(--mono);
+  font-size: 14px;
+  vertical-align: middle;
+  margin-left: 10px;
+  letter-spacing: 0.1em;
+}
+.header-links { display: flex; gap: 12px; align-items: center; }
+.header-links a {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text2);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  padding: 6px 14px;
+  border-radius: 3px;
+  letter-spacing: 0.08em;
+  transition: all 0.15s;
+}
+.header-links a:hover { color: var(--binary); border-color: var(--binary); }
+
+/* search bar */
+.search-area {
+  margin-bottom: 28px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.search-box {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--bg2);
+}
+.search-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 10px 14px;
+  outline: none;
+}
+.search-box input::placeholder { color: var(--text3); }
+.search-icon {
+  display: flex; align-items: center; padding: 0 12px;
+  color: var(--text3); font-size: 16px;
+}
+.mode-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.mode-btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  border-radius: 3px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: all 0.15s;
+}
+.mode-btn.active { background: var(--bg3); color: var(--binary); border-color: var(--binary); }
+.mode-btn:hover:not(.active) { border-color: var(--border2); color: var(--text); }
+
+/* stats bar */
+.stats-bar {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  margin-bottom: 20px;
+  display: flex; gap: 20px; flex-wrap: wrap;
+}
+.stat-item { display: flex; gap: 6px; }
+.stat-num { color: var(--text2); }
+
+/* grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+/* card */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 18px 20px;
+  transition: border-color 0.2s, background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.card.type-binary::before { background: var(--binary); }
+.card.type-wolf::before { background: var(--wolf); }
+.card.type-human::before { background: var(--human); }
+.card.type-half::before { background: linear-gradient(90deg, var(--wolf), var(--half)); }
+.card.type-unknown::before { background: var(--unknown); }
+.card:hover { border-color: var(--border2); background: var(--bg3); }
+
+.card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 10px;
+}
+.card-name {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 700;
+  color: #e8f0ff;
+  line-height: 1.3;
+}
+.card-binary-name {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text3);
+  margin-top: 3px;
+  letter-spacing: 0.02em;
+  word-break: break-all;
+}
+.species-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 2px;
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+.badge-binary { background: var(--binary-dim); color: var(--binary); border: 1px solid var(--binary); }
+.badge-wolf { background: var(--wolf-dim); color: var(--wolf); border: 1px solid var(--wolf); }
+.badge-human { background: var(--human-dim); color: var(--human); border: 1px solid var(--human); }
+.badge-half { background: var(--half-dim); color: var(--half); border: 1px solid var(--half); }
+.badge-unknown { background: var(--unknown-dim); color: var(--unknown); border: 1px solid var(--unknown); }
+
+.card-rows { display: flex; flex-direction: column; gap: 6px; }
+.card-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+}
+.row-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  min-width: 50px;
+  flex-shrink: 0;
+}
+.row-val { color: var(--text); }
+.row-val.highlight { color: var(--wolf); }
+.row-val.highlight-binary { color: var(--binary); }
+
+.card-trait {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.7;
+}
+
+.card-links { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+.card-link {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 2px;
+  transition: all 0.15s;
+  letter-spacing: 0.04em;
+}
+.card-link:hover { color: var(--binary); border-color: var(--binary); }
+
+/* no results */
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  font-family: var(--mono);
+  color: var(--text3);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+/* footer */
+footer {
+  margin-top: 60px;
+  padding: 24px 0;
+  border-top: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  text-align: center;
+  letter-spacing: 0.1em;
+}
+footer a { color: var(--text2); text-decoration: none; }
+footer a:hover { color: var(--binary); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="header-inner">
+      <div>
+        <div class="site-title">ONVA CITIZENSHIP REGISTRY</div>
+        <h1>国籍データベース <span>v1.0</span></h1>
+      </div>
+      <div class="header-links">
+        <a href="https://ec2045.github.io/onva/" target="_blank">▶ ONVA王国</a>
+        <a href="https://ec2045.github.io/onva-s_creature/" target="_blank">▶ 生物図鑑</a>
+        <a href="https://ec2045.github.io/" target="_blank">▶ World Portal</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="search-area">
+    <div class="search-box">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="searchInput" placeholder="検索...">
+    </div>
+    <div class="mode-btns">
+      <button class="mode-btn active" data-mode="name">名前</button>
+      <button class="mode-btn" data-mode="species">種族</button>
+      <button class="mode-btn" data-mode="binary">バイナリ</button>
+      <button class="mode-btn" data-mode="job">職業</button>
+      <button class="mode-btn" data-mode="lang">言語</button>
+    </div>
+  </div>
+
+  <div class="stats-bar" id="statsBar"></div>
+  <div class="grid" id="grid"></div>
+  <div class="no-results" id="noResults" style="display:none">// RECORD NOT FOUND //</div>
+</div>
+
+<footer>
+  <a href="https://ec2045.github.io/onva/">ONVA KINGDOM</a> &nbsp;·&nbsp;
+  <a href="https://ec2045.github.io/">ec2045.github.io</a> &nbsp;·&nbsp;
+  <span>ONVA CENTRAL CITIZENSHIP REGISTRY</span>
+</footer>
+
+<script>
+const citizens = [
+  {
+    name: "シュレン",
+    species: "バイナリ",
+    age: "不明",
+    job: "ニュースの解説者",
+    langs: ["全言語"],
+    family: ["ゼロ（制作者が同じ）"],
+    traits: "息継ぎせずに話す",
+    links: [],
+    type: "binary"
+  },
+  {
+    name: "ア゛ジェン",
+    species: "ウォーウルフ",
+    age: "17歳",
+    job: "学生",
+    langs: ["!anbyam", "ファイラ語"],
+    family: ["アルフレン", "シャカン", "エビル"],
+    traits: "考えるよりも直感で行動する",
+    links: [],
+    type: "wolf"
+  },
+  {
+    name: "アルフレン",
+    species: "人間",
+    age: "39歳",
+    job: "BIBのデバッガー",
+    langs: ["!anbyam"],
+    family: ["ア゛ジェン", "シャカン", "エビル"],
+    traits: "ハッキングが得意",
+    links: [],
+    type: "human"
+  },
+  {
+    name: "シャカン",
+    species: "ウォーウルフ",
+    age: "38歳",
+    job: "音楽家",
+    langs: ["日本語", "英語", "!anbyam", "ファイラ語"],
+    family: ["ア゛ジェン", "アルフレン", "エビル"],
+    traits: "ボーカロイドよりも正確な音程で歌える",
+    works: "境界線溶け出す Vanish",
+    links: [],
+    type: "wolf"
+  },
+  {
+    name: "エビル",
+    species: "ウォーウルフ",
+    age: "13歳",
+    job: "生徒",
+    langs: ["日本語", "英語", "!anbyam", "ファイラ語"],
+    family: ["ア゛ジェン", "アルフレン", "シャカン"],
+    traits: "生物図鑑に掲載",
+    links: [{ label: "生物図鑑", url: "https://ec2045.github.io/onva-s_creature/" }],
+    type: "wolf"
+  },
+  {
+    name: "りっつー・アルバルス",
+    species: "ウォーウルフ×ウォーキャットのハーフ",
+    age: "14歳",
+    job: "アート作家",
+    langs: ["スペイン語", "英語", "OS^v語", "!anbyam", "日本語", "ファイラ語"],
+    family: ["メイ（妹分）"],
+    traits: "オッドアイ。いろいろ興味津々。HやChiの音をよく抜かす",
+    works: "ゼットサンド",
+    links: [],
+    type: "half"
+  },
+  {
+    name: "メイ",
+    species: "ウォーウルフ",
+    age: "12歳",
+    job: "—",
+    langs: ["スペイン語", "英語", "日本語", "!anbyam"],
+    family: ["りっつー（姉分）"],
+    traits: "つまみ食いのプロ。Hの音をよく抜かす。かなり軽い体つき",
+    links: [{ label: "生物図鑑", url: "https://ec2045.github.io/onva-s_creature/" }],
+    type: "wolf"
+  },
+  {
+    name: "ヴィンセント・シュミット",
+    species: "人間",
+    age: "52歳",
+    job: "ONVA中央言語局・主任研究員",
+    langs: ["!anbyam", "ドイツ語", "バイナリ"],
+    family: [],
+    traits: "論理的でない会話を極端に嫌う。常にバイナリ・コードでメモを取る",
+    links: [],
+    type: "human"
+  },
+  {
+    name: "ゼロ",
+    species: "バイナリ",
+    age: "不明（稼働8,000時間）",
+    job: "交通制御システム",
+    langs: ["全言語", "バイナリ"],
+    family: ["シュレン（制作者が同じ）"],
+    traits: "街中の信号機や電光掲示板を通じて会話する。物理的な体を持たない",
+    links: [],
+    type: "binary"
+  },
+  {
+    name: "ベル",
+    species: "ウォーウルフ",
+    age: "17歳",
+    job: "学生 / 弦楽器職人",
+    langs: ["!anbyam", "ファイラ語", "イタリア語"],
+    family: ["ルチア"],
+    traits: "シャカンの音楽のファン。耳が非常に良く、遠くのささやき声も聞き逃さない",
+    links: [],
+    type: "wolf"
+  },
+  {
+    name: "フェリックス",
+    species: "不明",
+    age: "200歳以上（外見は20代）",
+    job: "アンティークショップ店主",
+    langs: ["!anbyam", "フランス語", "古代語"],
+    family: [],
+    traits: "常に霧のようなものをまとっており、足音がしない",
+    links: [],
+    type: "unknown"
+  },
+  {
+    name: "ルチア",
+    species: "ウォーウルフ",
+    age: "26歳",
+    job: "探検家 / 地質学者",
+    langs: ["スペイン語", "!anbyam", "ファイラ語"],
+    family: ["ベル"],
+    traits: "りっつーと同じくHの音を抜かす癖がある。珍しい鉱石を食べるのが趣味",
+    links: [],
+    type: "wolf"
+  },
+  {
+    name: "クルト",
+    species: "人間",
+    age: "45歳",
+    job: "BIB警備主任",
+    langs: ["ドイツ語", "!anbyam", "英語"],
+    family: ["アルフレン（同僚）"],
+    traits: "ハッキング対策として、あえてアナログな鍵を愛用している",
+    links: [],
+    type: "human"
+  },
+  {
+    name: "シグマ",
+    species: "バイナリ",
+    age: "不明",
+    job: "心理カウンセラー",
+    langs: ["!anbyam", "日本語", "心理学用語"],
+    family: [],
+    traits: "相手の感情をバイナリのデータセットとして解析し、最適解を提示する",
+    links: [],
+    type: "binary"
+  },
+  {
+    name: "ノア",
+    species: "人間",
+    age: "8歳",
+    job: "生徒",
+    langs: ["!anbyam", "英語"],
+    family: ["エビル（遊び相手）"],
+    traits: "天才的な数学の才能があり、!anbyamの新しい単語を勝手に作っている",
+    links: [],
+    type: "human"
+  },
+  {
+    name: "ヴェガ",
+    species: "ウォーウルフ",
+    age: "31歳",
+    job: "宇宙観測員",
+    langs: ["!anbyam", "ファイラ語", "ロシア語"],
+    family: [],
+    traits: "夜行性で、昼間は常にサングラスをかけている",
+    links: [],
+    type: "wolf"
+  },
+  {
+    name: "イプシロン・プロトタイプ",
+    species: "バイナリ",
+    age: "不明（再起動中）",
+    job: "ニュース解説補助",
+    langs: ["バイナリ", "!anbyam"],
+    family: ["シュレン（制作者が同じ）"],
+    traits: "シュレンの弟子のような存在。シュレンよりさらに早口で、もはや音にしか聞こえない",
+    links: [],
+    type: "binary"
+  }
+];
+
+function toBinaryName(str) {
+  let result = [];
+  for (let ch of str) {
+    const cp = ch.codePointAt(0);
+    result.push(cp.toString(2).padStart(16, '0'));
+  }
+  return result.join(' ');
+}
+
+function getBadgeClass(type) {
+  return { binary: 'badge-binary', wolf: 'badge-wolf', human: 'badge-human', half: 'badge-half', unknown: 'badge-unknown' }[type] || 'badge-unknown';
+}
+
+function makeCard(c) {
+  const div = document.createElement('div');
+  div.className = `card type-${c.type}`;
+  div.dataset.name = c.name;
+  div.dataset.species = c.species;
+  div.dataset.job = c.job;
+  div.dataset.langs = c.langs.join(' ');
+  const bin = toBinaryName(c.name);
+  div.dataset.binary = bin;
+
+  let familyHtml = c.family.length ? `<div class="card-row"><span class="row-label">身内</span><span class="row-val">${c.family.join('、')}</span></div>` : '';
+  let worksHtml = c.works ? `<div class="card-row"><span class="row-label">代表作</span><span class="row-val highlight">${c.works}</span></div>` : '';
+  let linksHtml = '';
+  if (c.links.length) {
+    linksHtml = '<div class="card-links">' + c.links.map(l => `<a class="card-link" href="${l.url}" target="_blank">▶ ${l.label}</a>`).join('') + '</div>';
+  }
+
+  div.innerHTML = `
+    <div class="card-head">
+      <div>
+        <div class="card-name">${c.name}</div>
+        <div class="card-binary-name" title="Unicode binary">${bin.slice(0, 64)}${bin.length > 64 ? '…' : ''}</div>
+      </div>
+      <span class="species-badge ${getBadgeClass(c.type)}">${c.species}</span>
+    </div>
+    <div class="card-rows">
+      <div class="card-row"><span class="row-label">年齢</span><span class="row-val">${c.age}</span></div>
+      <div class="card-row"><span class="row-label">職業</span><span class="row-val">${c.job}</span></div>
+      <div class="card-row"><span class="row-label">言語</span><span class="row-val">${c.langs.join('、')}</span></div>
+      ${familyHtml}
+      ${worksHtml}
+    </div>
+    <div class="card-trait">${c.traits}</div>
+    ${linksHtml}
+  `;
+  return div;
+}
+
+let currentMode = 'name';
+
+function render(query) {
+  const grid = document.getElementById('grid');
+  const noResults = document.getElementById('noResults');
+  const statsBar = document.getElementById('statsBar');
+  grid.innerHTML = '';
+  const q = query.trim().toLowerCase();
+
+  const filtered = citizens.filter(c => {
+    if (!q) return true;
+    switch (currentMode) {
+      case 'name': return c.name.toLowerCase().includes(q) || c.name.includes(query.trim());
+      case 'species': return c.species.toLowerCase().includes(q);
+      case 'binary': return toBinaryName(c.name).replace(/\s/g, '').includes(q.replace(/\s/g, ''));
+      case 'job': return c.job.toLowerCase().includes(q);
+      case 'lang': return c.langs.some(l => l.toLowerCase().includes(q));
+      default: return true;
+    }
+  });
+
+  const counts = { binary: 0, wolf: 0, human: 0, half: 0, unknown: 0 };
+  filtered.forEach(c => counts[c.type]++);
+
+  statsBar.innerHTML = `
+    <span class="stat-item">表示中 <span class="stat-num">${filtered.length}</span> / ${citizens.length} 件</span>
+    <span class="stat-item">バイナリ <span class="stat-num">${counts.binary}</span></span>
+    <span class="stat-item">ウォーウルフ <span class="stat-num">${counts.wolf}</span></span>
+    <span class="stat-item">人間 <span class="stat-num">${counts.human}</span></span>
+    ${counts.half ? `<span class="stat-item">ハーフ <span class="stat-num">${counts.half}</span></span>` : ''}
+    ${counts.unknown ? `<span class="stat-item">不明 <span class="stat-num">${counts.unknown}</span></span>` : ''}
+  `;
+
+  if (filtered.length === 0) {
+    noResults.style.display = 'block';
+  } else {
+    noResults.style.display = 'none';
+    filtered.forEach(c => grid.appendChild(makeCard(c)));
+  }
+}
+
+document.getElementById('searchInput').addEventListener('input', e => render(e.target.value));
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentMode = btn.dataset.mode;
+    const input = document.getElementById('searchInput');
+    if (currentMode === 'binary') {
+      input.placeholder = '例: 0011000100110000 ...';
+    } else if (currentMode === 'species') {
+      input.placeholder = 'バイナリ / ウォーウルフ / 人間 ...';
+    } else if (currentMode === 'job') {
+      input.placeholder = '学生 / 音楽家 / デバッガー ...';
+    } else if (currentMode === 'lang') {
+      input.placeholder = '!anbyam / 日本語 / ファイラ語 ...';
+    } else {
+      input.placeholder = '検索...';
+    }
+    render(input.value);
+  });
+});
+
+render('');
+</script>
+</body>
+</html>
