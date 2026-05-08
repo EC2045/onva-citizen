@@ -322,6 +322,14 @@ footer a:hover { color: var(--binary); }
     <div class="search-box">
       <span class="search-icon">⌕</span>
       <input type="text" id="searchInput" placeholder="検索...">
+      <select id="speciesSelect" style="display:none; flex:1; background:transparent; border:none; color:var(--text); font-family:var(--mono); font-size:13px; padding:10px 14px; outline:none; cursor:pointer;">
+        <option value="" style="background:var(--bg2);">すべての種族</option>
+        <option value="バイナリ" style="background:var(--bg2);">バイナリ</option>
+        <option value="ウォーウルフ" style="background:var(--bg2);">ウォーウルフ</option>
+        <option value="人間" style="background:var(--bg2);">人間</option>
+        <option value="ハーフ" style="background:var(--bg2);">ハーフ</option>
+        <option value="不明" style="background:var(--bg2);">不明</option>
+      </select>
     </div>
     <div class="mode-btns">
       <button class="mode-btn active" data-mode="name">名前</button>
@@ -629,24 +637,33 @@ function render(query) {
 }
 
 document.getElementById('searchInput').addEventListener('input', e => render(e.target.value));
+document.getElementById('speciesSelect').addEventListener('change', e => render(e.target.value));
 document.querySelectorAll('.mode-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     currentMode = btn.dataset.mode;
     const input = document.getElementById('searchInput');
-    if (currentMode === 'binary') {
-      input.placeholder = '例: 0011000100110000 ...';
-    } else if (currentMode === 'species') {
-      input.placeholder = 'バイナリ / ウォーウルフ / 人間 ...';
-    } else if (currentMode === 'job') {
-      input.placeholder = '学生 / 音楽家 / デバッガー ...';
-    } else if (currentMode === 'lang') {
-      input.placeholder = '!anbyam / 日本語 / ファイラ語 ...';
+    const select = document.getElementById('speciesSelect');
+    
+    if (currentMode === 'species') {
+      input.style.display = 'none';
+      select.style.display = 'block';
+      render(select.value);
     } else {
-      input.placeholder = '検索...';
+      input.style.display = 'block';
+      select.style.display = 'none';
+      if (currentMode === 'binary') {
+        input.placeholder = '例: 0011000100110000 ...';
+      } else if (currentMode === 'job') {
+        input.placeholder = '学生 / 音楽家 / デバッガー ...';
+      } else if (currentMode === 'lang') {
+        input.placeholder = '!anbyam / 日本語 / ファイラ語 ...';
+      } else {
+        input.placeholder = '検索...';
+      }
+      render(input.value);
     }
-    render(input.value);
   });
 });
 
