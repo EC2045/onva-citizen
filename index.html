@@ -27,6 +27,8 @@
   --binary-dim: #004430;
   --wolf: #f0a040;
   --wolf-dim: #3a2000;
+  --cat: #ff60b0;
+  --cat-dim: #400020;
   --human: #5090f0;
   --human-dim: #001840;
   --half: #e060c0;
@@ -193,6 +195,7 @@ h1 span {
 }
 .card.type-binary::before { background: var(--binary); }
 .card.type-wolf::before { background: var(--wolf); }
+.card.type-cat::before { background: var(--cat); }
 .card.type-human::before { background: var(--human); }
 .card.type-half::before { background: linear-gradient(90deg, var(--wolf), var(--half)); }
 .card.type-unknown::before { background: var(--unknown); }
@@ -231,6 +234,7 @@ h1 span {
 }
 .badge-binary { background: var(--binary-dim); color: var(--binary); border: 1px solid var(--binary); }
 .badge-wolf { background: var(--wolf-dim); color: var(--wolf); border: 1px solid var(--wolf); }
+.badge-cat { background: var(--cat-dim); color: var(--cat); border: 1px solid var(--cat); }
 .badge-human { background: var(--human-dim); color: var(--human); border: 1px solid var(--human); }
 .badge-half { background: var(--half-dim); color: var(--half); border: 1px solid var(--half); }
 .badge-unknown { background: var(--unknown-dim); color: var(--unknown); border: 1px solid var(--unknown); }
@@ -326,6 +330,7 @@ footer a:hover { color: var(--binary); }
         <option value="" style="background:var(--bg2);">すべての種族</option>
         <option value="バイナリ" style="background:var(--bg2);">バイナリ</option>
         <option value="ウォーウルフ" style="background:var(--bg2);">ウォーウルフ</option>
+        <option value="ウォーキャット" style="background:var(--bg2);">ウォーキャット</option>
         <option value="人間" style="background:var(--bg2);">人間</option>
         <option value="ハーフ" style="background:var(--bg2);">ハーフ</option>
         <option value="不明" style="background:var(--bg2);">不明</option>
@@ -601,7 +606,7 @@ const citizens = [
 },
   {
     "name": "エマ",
-    "species": "ウォーウルフ×人間のハーフ",
+    "species": "ウォーウルフ",
     "age": "50歳",
     "job": "都市気象コントロール担当",
     "langs": [
@@ -614,11 +619,11 @@ const citizens = [
     ],
     "traits": "WACデータベースの記録員。職務に忠実。",
     "links": [],
-    "type": "half"
+    "type": "wolf"
 },
   {
     "name": "オリバー",
-    "species": "ウォーウルフ×人間のハーフ",
+    "species": "ウォーウルフ",
     "age": "68歳",
     "job": "古代遺跡探掘家",
     "langs": [
@@ -629,7 +634,7 @@ const citizens = [
     "family": [],
     "traits": "WACデータベースの記録員。職務に忠実。",
     "links": [],
-    "type": "half"
+    "type": "wolf"
 },
   {
     "name": "リアム",
@@ -740,7 +745,7 @@ const citizens = [
 },
   {
     "name": "シオン",
-    "species": "ウォーウルフ×人間のハーフ",
+    "species": "ウォーウルフ",
     "age": "21歳",
     "job": "星間輸送船パイロット",
     "langs": [
@@ -752,7 +757,7 @@ const citizens = [
     ],
     "traits": "WACデータベースの記録員。職務に忠実。",
     "links": [],
-    "type": "half"
+    "type": "wolf"
 },
   {
     "name": "トア",
@@ -828,7 +833,7 @@ const citizens = [
 },
   {
     "name": "ダニエル",
-    "species": "ウォーウルフ×人間のハーフ",
+    "species": "ウォーウルフ",
     "age": "51歳",
     "job": "サイボーグ義体整備士",
     "langs": [
@@ -838,7 +843,7 @@ const citizens = [
     "family": [],
     "traits": "WACデータベースの記録員。職務に忠実。",
     "links": [],
-    "type": "half"
+    "type": "wolf"
 },
   {
     "name": "エイデン",
@@ -902,7 +907,7 @@ const citizens = [
 },
   {
     "name": "イアン",
-    "species": "ウォーウルフ×人間のハーフ",
+    "species": "ウォーウルフ",
     "age": "54歳",
     "job": "!abyang仕立て屋",
     "langs": [
@@ -915,7 +920,7 @@ const citizens = [
     ],
     "traits": "伝統と機能性を融合させた!abyangの設計に一生を捧げている。",
     "links": [],
-    "type": "half"
+    "type": "wolf"
 },
   {
     "name": "ジェイコブ",
@@ -933,7 +938,7 @@ const citizens = [
 },
   {
     "name": "カレン",
-    "species": "ウォーウルフ×人間のハーフ",
+    "species": "人間",
     "age": "21歳",
     "job": "仮想空間設計士",
     "langs": [
@@ -943,7 +948,7 @@ const citizens = [
     "family": [],
     "traits": "WACデータベースの記録員。職務に忠実。",
     "links": [],
-    "type": "half"
+    "type": "human"
 },
   {
     "name": "リュカ",
@@ -981,7 +986,7 @@ const citizens = [
 },
   {
     "name": "ニコラス",
-    "species": "ウォーウルフ×人間のハーフ",
+    "species": "ウォーウルフ",
     "age": "17歳",
     "job": "サイボーグ義体整備士",
     "langs": [
@@ -992,7 +997,7 @@ const citizens = [
     "family": [],
     "traits": "WACデータベースの記録員。職務に忠実。",
     "links": [],
-    "type": "half"
+    "type": "wolf"
 },
   {
     "name": "オーウェン",
@@ -1010,7 +1015,7 @@ const citizens = [
 },
   {
     "name": "ペネロペ",
-    "species": "ウォーウルフ×人間のハーフ",
+    "species": "ウォーウルフ",
     "age": "18歳",
     "job": "時間流観測手",
     "langs": [
@@ -1022,7 +1027,7 @@ const citizens = [
     "family": [],
     "traits": "WACデータベースの記録員。職務に忠実。",
     "links": [],
-    "type": "half"
+    "type": "wolf"
 },
   {
     "name": "クイン",
@@ -1073,7 +1078,7 @@ const citizens = [
 },
   {
     "name": "タイラー",
-    "species": "ウォーウルフ×人間のハーフ",
+    "species": "ウォーウルフ",
     "age": "13歳",
     "job": "電子ドラッグ取締官",
     "langs": [
@@ -1085,7 +1090,7 @@ const citizens = [
     ],
     "traits": "WACデータベースの記録員。職務に忠実。",
     "links": [],
-    "type": "half"
+    "type": "wolf"
 },
   {
     "name": "ウリエン",
@@ -1121,7 +1126,7 @@ const citizens = [
 },
   {
     "name": "ウィリアム",
-    "species": "ウォーウルフ×人間のハーフ",
+    "species": "人間",
     "age": "48歳",
     "job": "仮想空間設計士",
     "langs": [
@@ -1134,7 +1139,7 @@ const citizens = [
     ],
     "traits": "WACデータベースの記録員。職務に忠実。",
     "links": [],
-    "type": "half"
+    "type": "human"
 },
   {
     "name": "ザビエル",
@@ -1324,14 +1329,14 @@ const citizens = [
   },
   {
     name: "ロッド",
-    species: "ウォーウルフ×人間のハーフ",
+    species: "ウォーウルフ",
     age: "29歳",
     job: "デザイナー",
     langs: ["!anbyam", "ファイラ語"],
     family: [],
     traits: "服の袖が常にインクや塗料で汚れている。奇抜な配色を好む。",
     links: [],
-    type: "half"
+    type: "wolf"
   },
   {
     name: "ミュウ",
@@ -1343,6 +1348,50 @@ const citizens = [
     traits: "重力を無視した不思議な空間の装飾が得意。常にふわふわ浮いている。",
     links: [],
     type: "unknown"
+  },
+  {
+    name: "テト",
+    species: "ウォーキャット",
+    age: "19歳",
+    job: "情報ブローカー",
+    langs: ["!anbyam", "バイナリ"],
+    family: [],
+    traits: "静かな路地裏で有益な情報を売買している。足音が一切しない。",
+    links: [],
+    type: "cat"
+  },
+  {
+    name: "ノエル",
+    species: "ウォーキャット",
+    age: "25歳",
+    job: "隠密配送員",
+    langs: ["!anbyam", "英語"],
+    family: [],
+    traits: "どんなに厳重な監視網もすり抜けて荷物を届ける。屋根伝いのルートを好む。",
+    links: [],
+    type: "cat"
+  },
+  {
+    name: "ミロ",
+    species: "ウォーキャット",
+    age: "30歳",
+    job: "夜間警備員",
+    langs: ["!anbyam", "日本語"],
+    family: [],
+    traits: "暗闇での視認能力が異常に高い。無口だが、仕事は完璧にこなす。",
+    links: [],
+    type: "cat"
+  },
+  {
+    name: "キキ",
+    species: "ウォーキャット",
+    age: "22歳",
+    job: "屋根裏の音楽家",
+    langs: ["!anbyam", "フランス語"],
+    family: [],
+    traits: "誰もいない屋根の上で、月明かりを浴びながら楽器を奏でるのを好む。",
+    links: [],
+    type: "cat"
   }
 ];
 
@@ -1356,7 +1405,7 @@ function toBinaryName(str) {
 }
 
 function getBadgeClass(type) {
-  return { binary: 'badge-binary', wolf: 'badge-wolf', human: 'badge-human', half: 'badge-half', unknown: 'badge-unknown' }[type] || 'badge-unknown';
+  return { binary: 'badge-binary', wolf: 'badge-wolf', cat: 'badge-cat', human: 'badge-human', half: 'badge-half', unknown: 'badge-unknown' }[type] || 'badge-unknown';
 }
 
 function makeCard(c) {
@@ -1425,6 +1474,7 @@ function render(query) {
     <span class="stat-item">表示中 <span class="stat-num">${filtered.length}</span> / ${citizens.length} 件</span>
     <span class="stat-item">バイナリ <span class="stat-num">${counts.binary}</span></span>
     <span class="stat-item">ウォーウルフ <span class="stat-num">${counts.wolf}</span></span>
+    <span class="stat-item">ウォーキャット <span class="stat-num">${counts.cat}</span></span>
     <span class="stat-item">人間 <span class="stat-num">${counts.human}</span></span>
     ${counts.half ? `<span class="stat-item">ハーフ <span class="stat-num">${counts.half}</span></span>` : ''}
     ${counts.unknown ? `<span class="stat-item">不明 <span class="stat-num">${counts.unknown}</span></span>` : ''}
