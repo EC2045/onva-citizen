@@ -492,6 +492,10 @@
           <option value="ハーフ" style="background:var(--bg2);">ハーフ</option>
           <option value="不明" style="background:var(--bg2);">不明</option>
         </select>
+        <select id="jobSelect"
+          style="display:none; flex:1; background:transparent; border:none; color:var(--text); font-family:var(--mono); font-size:13px; padding:10px 14px; outline:none; cursor:pointer;">
+          <option value="" style="background:var(--bg2);">すべての職業</option>
+        </select>
       </div>
       <div class="mode-btns">
         <button class="mode-btn active" data-mode="name">名前</button>
@@ -11900,27 +11904,44 @@
       }
     }
 
+    // Populate Job Select
+    const jobs = [...new Set(citizens.map(c => c.job))].filter(j => j && j !== '—').sort();
+    const jobSelect = document.getElementById('jobSelect');
+    jobs.forEach(job => {
+      const opt = document.createElement('option');
+      opt.value = job;
+      opt.textContent = job;
+      opt.style.background = 'var(--bg2)';
+      jobSelect.appendChild(opt);
+    });
+
     document.getElementById('searchInput').addEventListener('input', e => render(e.target.value));
     document.getElementById('speciesSelect').addEventListener('change', e => render(e.target.value));
+    document.getElementById('jobSelect').addEventListener('change', e => render(e.target.value));
+
     document.querySelectorAll('.mode-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentMode = btn.dataset.mode;
         const input = document.getElementById('searchInput');
-        const select = document.getElementById('speciesSelect');
+        const speciesSelect = document.getElementById('speciesSelect');
+        const jobSelect = document.getElementById('jobSelect');
+
+        input.style.display = 'none';
+        speciesSelect.style.display = 'none';
+        jobSelect.style.display = 'none';
 
         if (currentMode === 'species') {
-          input.style.display = 'none';
-          select.style.display = 'block';
-          render(select.value);
+          speciesSelect.style.display = 'block';
+          render(speciesSelect.value);
+        } else if (currentMode === 'job') {
+          jobSelect.style.display = 'block';
+          render(jobSelect.value);
         } else {
           input.style.display = 'block';
-          select.style.display = 'none';
           if (currentMode === 'binary') {
             input.placeholder = '例: 0011000100110000 ...';
-          } else if (currentMode === 'job') {
-            input.placeholder = '学生 / 音楽家 / デバッガー ...';
           } else if (currentMode === 'family') {
             input.placeholder = '名前を入力して身内を検索...';
           } else if (currentMode === 'lang') {
