@@ -504,6 +504,7 @@
         <button class="mode-btn" data-mode="job">職業</button>
         <button class="mode-btn" data-mode="family">身内</button>
         <button class="mode-btn" data-mode="lang">言語</button>
+        <button class="mode-btn" data-mode="condition">条件</button>
       </div>
     </div>
 
@@ -11892,6 +11893,29 @@
           case 'job': return c.job.toLowerCase().includes(q);
           case 'family': return c.family.some(f => f.toLowerCase().includes(q));
           case 'lang': return c.langs.some(l => l.toLowerCase().includes(q));
+          case 'condition': {
+            const terms = q.split(/[\s　]+/);
+            return terms.every(term => {
+              if (term.includes(':') || term.includes('：')) {
+                const [key, val] = term.split(/[:：]/);
+                if (!val) return true;
+                const k = key.trim();
+                const v = val.trim();
+                if (k === '年齢' || k === 'age') return c.age && c.age.includes(v);
+                if (k === '言語' || k === 'lang') return c.langs && c.langs.some(l => l.toLowerCase().includes(v));
+                if (k === '種族' || k === 'species') return c.species && c.species.toLowerCase().includes(v);
+                if (k === '職業' || k === 'job') return c.job && c.job.toLowerCase().includes(v);
+                if (k === '名前' || k === 'name') return c.name && c.name.toLowerCase().includes(v);
+              }
+              // If no prefix, just do a generic match across all fields
+              return (c.name && c.name.toLowerCase().includes(term)) || 
+                     (c.age && c.age.includes(term)) || 
+                     (c.job && c.job.toLowerCase().includes(term)) || 
+                     (c.species && c.species.toLowerCase().includes(term)) || 
+                     (c.langs && c.langs.some(l => l.toLowerCase().includes(term))) ||
+                     (c.traits && c.traits.toLowerCase().includes(term));
+            });
+          }
           default: return true;
         }
       });
@@ -11983,6 +12007,8 @@
             input.placeholder = '名前を入力して身内を検索...';
           } else if (currentMode === 'lang') {
             input.placeholder = '!anbyam / 日本語 / ファイラ語 ...';
+          } else if (currentMode === 'condition') {
+            input.placeholder = '例: 年齢:21 言語:日本語';
           } else {
             input.placeholder = '検索...';
           }
