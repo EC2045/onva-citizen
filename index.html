@@ -572,6 +572,22 @@
         "type": "human"
       },
       {
+        "name": "アリア・ウォーリン",
+        "species": "ウォーウルフ",
+        "age": "14歳",
+        "job": "教科書デザイナー",
+        "langs": [
+          "日本語",
+          "英語",
+          "!anbyam",
+          "ファイラ語",
+          "ドイツ語"
+        ],
+        "traits": "意外と直感で動くりっつーと幼馴染",
+        "works": "歴史の教科書の一部",
+        "type": "wolf"
+      },
+      {
         "name": "シャカン",
         "species": "ウォーウルフ",
         "age": "38歳",
@@ -11908,12 +11924,12 @@
                 if (k === '名前' || k === 'name') return c.name && c.name.toLowerCase().includes(v);
               }
               // If no prefix, just do a generic match across all fields
-              return (c.name && c.name.toLowerCase().includes(term)) || 
-                     (c.age && c.age.includes(term)) || 
-                     (c.job && c.job.toLowerCase().includes(term)) || 
-                     (c.species && c.species.toLowerCase().includes(term)) || 
-                     (c.langs && c.langs.some(l => l.toLowerCase().includes(term))) ||
-                     (c.traits && c.traits.toLowerCase().includes(term));
+              return (c.name && c.name.toLowerCase().includes(term)) ||
+                (c.age && c.age.includes(term)) ||
+                (c.job && c.job.toLowerCase().includes(term)) ||
+                (c.species && c.species.toLowerCase().includes(term)) ||
+                (c.langs && c.langs.some(l => l.toLowerCase().includes(term))) ||
+                (c.traits && c.traits.toLowerCase().includes(term));
             });
           }
           default: return true;
