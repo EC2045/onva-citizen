@@ -483,7 +483,7 @@
         <span class="search-icon">⌕</span>
         <input type="text" id="searchInput" placeholder="検索...">
         <select id="speciesSelect"
-          style="display:none; flex:1; background:transparent; border:none; color:var(--text); font-family:var(--mono); font-size:13px; padding:10px 14px; outline:none; cursor:pointer;">
+          style="display:none; max-width:180px; background:var(--bg3); border:none; border-left:1px solid var(--border2); color:var(--text); font-family:var(--mono); font-size:13px; padding:10px 14px; outline:none; cursor:pointer;">
           <option value="" style="background:var(--bg2);">すべての種族</option>
           <option value="バイナリ" style="background:var(--bg2);">バイナリ</option>
           <option value="ウォーウルフ" style="background:var(--bg2);">ウォーウルフ</option>
@@ -493,7 +493,7 @@
           <option value="不明" style="background:var(--bg2);">不明</option>
         </select>
         <select id="jobSelect"
-          style="display:none; flex:1; background:transparent; border:none; color:var(--text); font-family:var(--mono); font-size:13px; padding:10px 14px; outline:none; cursor:pointer;">
+          style="display:none; max-width:180px; background:var(--bg3); border:none; border-left:1px solid var(--border2); color:var(--text); font-family:var(--mono); font-size:13px; padding:10px 14px; outline:none; cursor:pointer;">
           <option value="" style="background:var(--bg2);">すべての職業</option>
         </select>
       </div>
@@ -617,6 +617,23 @@
         "type": "wolf"
       },
       {
+        "name": "リタレン",
+        "species": "ウォーウルフ",
+        "age": "不明（享年32歳）",
+        "job": "初代同一アート作家R",
+        "langs": [
+          "!anbyam",
+          "日本語",
+          "バイナリ"
+        ],
+        "family": [
+          "りっつー（息子）"
+        ],
+        "traits": "同一アート作家「R」の称号を確立した人物。記録によれば2038年に「デバッグ」されたとされる。",
+        "links": [],
+        "type": "wolf"
+      },
+      {
         "name": "りっつー・アルバルス",
         "species": "ウォーウルフ×ウォーキャットのハーフ",
         "age": "14歳",
@@ -630,9 +647,10 @@
           "ファイラ語"
         ],
         "family": [
-          "メイ（妹分）"
+          "メイ（妹分）",
+          "リタレン（父）"
         ],
-        "traits": "オッドアイ。いろいろ興味津々。HやChiの音をよく抜かす",
+        "traits": "オッドアイ。いろいろ興味津々。HやChiの音をよく抜かす。父から「R」の称号を受け継いでいることが判明。",
         "works": "ゼットサンド",
         "links": [],
         "type": "half"
@@ -11878,7 +11896,7 @@
         }
       });
 
-      const counts = { binary: 0, wolf: 0, human: 0, half: 0, unknown: 0 };
+      const counts = { binary: 0, wolf: 0, cat: 0, human: 0, half: 0, unknown: 0 };
       filtered.forEach(c => counts[c.type]++);
 
       statsBar.innerHTML = `
@@ -11910,9 +11928,27 @@
       jobSelect.appendChild(opt);
     });
 
-    document.getElementById('searchInput').addEventListener('input', e => render(e.target.value));
-    document.getElementById('speciesSelect').addEventListener('change', e => render(e.target.value));
-    document.getElementById('jobSelect').addEventListener('change', e => render(e.target.value));
+    document.getElementById('searchInput').addEventListener('input', e => {
+      const val = e.target.value;
+      if (currentMode === 'species') {
+        const sel = document.getElementById('speciesSelect');
+        sel.value = [...sel.options].some(o => o.value === val) ? val : "";
+      } else if (currentMode === 'job') {
+        const sel = document.getElementById('jobSelect');
+        sel.value = [...sel.options].some(o => o.value === val) ? val : "";
+      }
+      render(val);
+    });
+
+    document.getElementById('speciesSelect').addEventListener('change', e => {
+      document.getElementById('searchInput').value = e.target.value;
+      render(e.target.value);
+    });
+
+    document.getElementById('jobSelect').addEventListener('change', e => {
+      document.getElementById('searchInput').value = e.target.value;
+      render(e.target.value);
+    });
 
     document.querySelectorAll('.mode-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -11928,11 +11964,17 @@
         jobSelect.style.display = 'none';
 
         if (currentMode === 'species') {
+          input.style.display = 'block';
           speciesSelect.style.display = 'block';
-          render(speciesSelect.value);
+          input.placeholder = '種族を検索...';
+          input.value = speciesSelect.value;
+          render(input.value);
         } else if (currentMode === 'job') {
+          input.style.display = 'block';
           jobSelect.style.display = 'block';
-          render(jobSelect.value);
+          input.placeholder = '職業を検索...';
+          input.value = jobSelect.value;
+          render(input.value);
         } else {
           input.style.display = 'block';
           if (currentMode === 'binary') {
